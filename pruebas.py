@@ -1,7 +1,7 @@
 from src.motor import ProcesarComprobante
 
 casos_prueba = [
-    {"nombre": "1. Ticket Almuerzo Claro", "ruta": "test_data/ticket_almuerzo.pdf", "mime": "application/pdf"},
+    {"nombre": "1. Ticket Almuerzo Claro", "ruta": "test_data/ticket_almuerzo.jpg", "mime": "image/jpeg"},
     {"nombre": "2. Factura Combustible", "ruta": "test_data/factura_nafta.png", "mime": "image/png"},
     {"nombre": "3. Recibo Hospedaje", "ruta": "test_data/hotel.jpg", "mime": "image/jpeg"},
     {"nombre": "4. Ticket Borroso / Ilegible", "ruta": "test_data/ticket_borroso.jpg", "mime": "image/jpeg"},

@@ -2,3 +2,4 @@ pydantic
 python-dotenv
 fastapi[standard]
 google-genai
+openai

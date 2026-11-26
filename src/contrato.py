@@ -62,8 +62,8 @@ class Categorias(str, Enum):
     Otros = "Otros"
 
 class Salida(BaseModel):
-    fecha: date = Field(
-        default_factory=date.today(),
+    fecha: date | None = Field(
+        default=None,
         description="Fecha del gasto en formato YYYY-MM-DD, por defecto la fecha actual"
     )
     concepto: Categorias = Field(
@@ -72,7 +72,7 @@ class Salida(BaseModel):
     )
     monto: float | None = Field(
         default = None,
-        gt= 0,
+        ge= 0,
         description="Monto del gasto"
     )
     observaciones: str | None = Field(
