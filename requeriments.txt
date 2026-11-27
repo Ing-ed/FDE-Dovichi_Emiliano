@@ -3,3 +3,4 @@ python-dotenv
 fastapi[standard]
 google-genai
 openai
+opencv-python

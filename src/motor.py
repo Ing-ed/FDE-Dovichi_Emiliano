@@ -1,6 +1,7 @@
 import os
 import time
 import base64
+import cv2 as cv
 from src.contrato import Entrada, Salida, FormatoImg
 from typing import Any, Dict, Optional
 from pydantic import ValidationError
@@ -8,20 +9,29 @@ from google import genai
 from google.genai import types
 from google.genai.errors import ServerError
 from dotenv import load_dotenv
-from openai import OpenAI
+from openai import OpenAI, APIError
 
 load_dotenv()
 
 PROMPT = """sos un asistente de extraccion estructurada de comprobantes de gastos.
 Analiza la imagen provista y extraé con precision:
-fecha: fecha del comprobante(YYYY-MM-DD). Si no esta o no es legible, usa la fecha de hoy
-concepto: De acuerdo al detalle del ticket, clasificalo estrictamente en Almuerzo, Combustible, Hospedaje, Otros
-monto: total numerico del gasto, si no se distingue, usa null.
-observaciones: Detalles escritos a mano en el ticket/factura"""
+fecha: fecha del comprobante(YYYY-MM-DD). Si no esta o no es legible, usa None.
+concepto: De acuerdo al detalle del ticket, clasificalo estrictamente en Almuerzo, Combustible, Hospedaje, Cafe, Otros
+monto: total numerico del gasto redondeado, si no se distingue, usa None.
+observaciones: Anotaciones a mano en el ticket o factura, SI NO HAY, USA None
+"""
 
 
 ## codificar imagen
 def CodificarImagen(rutaImagen:str) -> str:
+    im = cv.imread(rutaImagen,cv.IMREAD_GRAYSCALE)
+    if im is None:
+        raise ValueError(f"No se pudo leer la imagen{rutaImagen}")
+    im2 = cv.resize(im,(380,240),interpolation=cv.INTER_AREA)
+    ok, buffer = cv.imencode(".jpg",im2,[int(cv.IMWRITE_JPEG_QUALITY), 85])
+    if not ok:
+        raise ValueError(f"No se pudo codificar la imagen")
+    return base64.b64encode(buffer.tobytes()).decode("ascii")
     with open(rutaImagen, "rb") as f:
         return base64.b64encode(f.read()).decode("utf-8")
 
@@ -61,7 +71,7 @@ def ProcesarComprobante(rutaArchivo: str, mime_type: str = "image/jpeg") -> Dict
                         {"type":"text", "text":"Extrae los datos estructurados del comprobante:"},
                         {
                             "type":"image_url",
-                            "image_url":{"url":f"data:{entrada.mime_type.value};base64,{im64}"}
+                            "image_url":{"url":f"data:{entrada.mime_type.value};base64,{im64}"}, "detail":"low"
                         }
                     ]
                 }
@@ -71,8 +81,21 @@ def ProcesarComprobante(rutaArchivo: str, mime_type: str = "image/jpeg") -> Dict
         )
         latencia_ms = round((time.time() -inicio)*1000, 2)
         salida: Salida = response.choices[0].message.parsed
-        return salida
-    except ServerError as err:
+        in_tok = response.usage.prompt_tokens if response.usage else 0
+        out_tok = response.usage.completion_tokens if response.usage else 0
+        total_tok = response.usage.total_tokens if response.usage else (in_tok + out_tok)
+        costo = (in_tok * 0.15 + out_tok * 0.6)/1_000_000
+
+        return {
+            "status":"OK",
+            "salida":salida,
+            "latencia_ms":latencia_ms,
+            "in_tok":in_tok,
+            "out_tok":out_tok,
+            "total_tokens":total_tok,
+            "costo":costo
+        }
+    except APIError as err:
         print("Error", err)
 
     

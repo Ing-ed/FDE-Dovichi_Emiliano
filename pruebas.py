@@ -18,17 +18,20 @@ if __name__ == "__main__":
         print(f"\nEjecutando: {caso['nombre']}...")
         res = ProcesarComprobante(caso["ruta"], caso["mime"])
         resultados.append(res)
-        print(res)
+        print(res["salida"])
 
     exitos = [r for r in resultados if r.get("status") == "OK"]
-    # if exitos:
-    #     prom_lat = sum(r["latencia_ms"] for r in exitos) / len(exitos)
-    #     prom_tokens = sum(r["total_tokens"] for r in exitos) / len(exitos)
-    #     prom_costo = sum(r["costo_usd"] for r in exitos) / len(exitos)
-
-    #     print("\n" + "=" * 60)
-    #     print("MÉTRICAS PROMEDIO (Para la tabla del PDF):")
-    #     print(f"Latencia promedio: {prom_lat:.2f} ms")
-    #     print(f"Tokens promedio: {prom_tokens:.2f}")
-    #     print(f"Costo promedio: ${prom_costo:.6f} USD")
-    #     print("=" * 60)
+    if exitos:
+        prom_lat = sum(r["latencia_ms"] for r in exitos) / len(exitos)
+        prom_tokens = sum(r["total_tokens"] for r in exitos) / len(exitos)
+        prom_tok_in = sum(r["in_tok"] for r in exitos) / len(exitos)
+        prom_costo = sum(r["costo"] for r in exitos) / len(exitos)
+        costo = sum(r["costo"] for r in exitos)
+        print("\n" + "=" * 60)
+        print("MÉTRICAS PROMEDIO (Para la tabla del PDF):")
+        print(f"Latencia promedio: {prom_lat:.2f} ms")
+        print(f"Tokens promedio: {prom_tokens:.2f}")
+        print(f"Costo promedio: ${prom_costo:.6f} USD")
+        print(f"Costo total: ${costo}")
+        print(f"in_toks: {prom_tok_in}")
+        print("=" * 60)

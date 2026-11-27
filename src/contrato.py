@@ -59,6 +59,7 @@ class Categorias(str, Enum):
     Almuerzo = "Almuerzo"
     Combustible = "Combustible"
     Hospedaje = "Hospedaje"
+    Cafe = "Cafe"
     Otros = "Otros"
 
 class Salida(BaseModel):
@@ -81,13 +82,13 @@ class Salida(BaseModel):
         max_length = 100,
         description= "Detalles o aclaraciones"
     )
-    confirmacion: str = Field(
-        description= "Pedido de confirmacion para el usuario"
-    )
+    
 
     @field_validator("fecha")
     @classmethod
     def ValidarFecha(cls,v: date) -> date:
+        if v is None:
+            return v
         if(v > date.today()):
             raise ValueError("La fecha del comprobante no puede ser futura")
         return v
