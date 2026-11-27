@@ -19,6 +19,10 @@ if __name__ == "__main__":
         res = ProcesarComprobante(caso["ruta"], caso["mime"])
         resultados.append(res)
         print(res["salida"])
+        print(f"Latencia: {res["latencia_ms"]}")
+        print(f"in_tokens: {res["in_tok"]}")
+        print(f"out_tokens: {res["out_tok"]}")
+        print(f"costo: ${res["costo"]}")
 
     exitos = [r for r in resultados if r.get("status") == "OK"]
     if exitos:

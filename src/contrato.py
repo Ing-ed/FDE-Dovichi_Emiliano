@@ -2,7 +2,7 @@ import os
 import re
 import base64
 import time
-from datetime import date
+from datetime import date, time
 from enum import Enum
 from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator
 
@@ -56,16 +56,22 @@ class Entrada(BaseModel):
 
 ## Salida
 class Categorias(str, Enum):
+    Desayuno = "Desayuno"
     Almuerzo = "Almuerzo"
+    Merienda = "Merieda"
+    Cena = "Cena"
     Combustible = "Combustible"
     Hospedaje = "Hospedaje"
-    Cafe = "Cafe"
     Otros = "Otros"
 
 class Salida(BaseModel):
     fecha: date | None = Field(
         default=None,
         description="Fecha del gasto en formato YYYY-MM-DD, por defecto la fecha actual"
+    )
+    hora: time | None = Field(
+        default=None,
+        description="Hora del gasto en formato HH:MM"
     )
     concepto: Categorias = Field(
         default = Categorias.Otros,
@@ -76,12 +82,12 @@ class Salida(BaseModel):
         ge= 0,
         description="Monto del gasto"
     )
-    observaciones: str | None = Field(
-        default=None,
-        min_length = 3,
-        max_length = 100,
-        description= "Detalles o aclaraciones"
-    )
+    # observaciones: str | None = Field(
+    #     default=None,
+    #     min_length = 3,
+    #     max_length = 100,
+    #     description= "Detalles o aclaraciones"
+    # )
     
 
     @field_validator("fecha")

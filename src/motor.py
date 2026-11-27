@@ -16,9 +16,15 @@ load_dotenv()
 PROMPT = """sos un asistente de extraccion estructurada de comprobantes de gastos.
 Analiza la imagen provista y extraé con precision:
 fecha: fecha del comprobante(YYYY-MM-DD). Si no esta o no es legible, usa None.
-concepto: De acuerdo al detalle del ticket, clasificalo estrictamente en Almuerzo, Combustible, Hospedaje, Cafe, Otros
+hora: la hora del comprobante (HH:MM), figura al lado de la fecha normalmente, si no la encontras, usa None
+concepto: De acuerdo al detalle del ticket, clasificalo estrictamente en Almuerzo, Desayuno, Cena teniendo en cuenta la hora siguiendo esta regla:
+0:00 a 11:00 -> Desayuno
+11:01 a 16:00 -> Almuerzo
+16:01 a 19:00 -> Merienda
+19:01 a 23:59 -> Cena
+
+Ademas, estan las siguientes categorias que no dependen del horario: Combustible, Hospedaje, Otros.
 monto: total numerico del gasto redondeado, si no se distingue, usa None.
-observaciones: Anotaciones a mano en el ticket o factura, SI NO HAY, USA None
 """
 
 
