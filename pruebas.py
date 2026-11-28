@@ -5,7 +5,8 @@ casos_prueba = [
     {"nombre": "2. Factura Combustible", "ruta": "test_data/factura_nafta.png", "mime": "image/png"},
     {"nombre": "3. Recibo Hospedaje", "ruta": "test_data/hotel.jpg", "mime": "image/jpeg"},
     {"nombre": "4. Ticket Borroso / Ilegible", "ruta": "test_data/ticket_borroso.jpg", "mime": "image/jpeg"},
-    {"nombre": "5. Imagen Fuera de Tema", "ruta": "test_data/foto_paisaje.jpg", "mime": "image/jpeg"}
+    {"nombre": "5. Imagen Fuera de Tema", "ruta": "test_data/foto_paisaje.jpg", "mime": "image/jpeg"},
+    {"nombre": "6. Factura en PDF", "ruta": "test_data/Factura.pdf", "mime": "application/pdf"}
 ]
 
 if __name__ == "__main__":

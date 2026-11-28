@@ -4,3 +4,4 @@ fastapi[standard]
 google-genai
 openai
 opencv-python
+PyPDF2

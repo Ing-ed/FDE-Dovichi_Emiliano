@@ -10,6 +10,7 @@ from google.genai import types
 from google.genai.errors import ServerError
 from dotenv import load_dotenv
 from openai import OpenAI, APIError
+from PyPDF2 import PdfReader
 
 load_dotenv()
 
@@ -27,7 +28,12 @@ Ademas, estan las siguientes categorias que no dependen del horario: Combustible
 monto: total numerico del gasto redondeado, si no se distingue, usa None.
 """
 
-
+def CargarPdf(rutaPDF: str) -> str:
+    archivo = PdfReader(rutaPDF)
+    archivoText = archivo.pages[0].extract_text()
+    # print(archivoText)
+    return archivoText
+    # exit()
 ## codificar imagen
 def CodificarImagen(rutaImagen:str) -> str:
     im = cv.imread(rutaImagen,cv.IMREAD_GRAYSCALE)
@@ -38,8 +44,6 @@ def CodificarImagen(rutaImagen:str) -> str:
     if not ok:
         raise ValueError(f"No se pudo codificar la imagen")
     return base64.b64encode(buffer.tobytes()).decode("ascii")
-    with open(rutaImagen, "rb") as f:
-        return base64.b64encode(f.read()).decode("utf-8")
 
 
 ## Procesamiento de datos
@@ -60,9 +64,20 @@ def ProcesarComprobante(rutaArchivo: str, mime_type: str = "image/jpeg") -> Dict
 
     # client = genai.Client(api_key = api_key)
     client = OpenAI(api_key=api_key)
-    im64 = CodificarImagen(rutaArchivo)
-    with open(rutaArchivo, "rb") as f:
-        image_bytes = f.read()
+    if(rutaArchivo.endswith(".pdf")):
+        im64 = CargarPdf(rutaArchivo)
+        content={
+            "type":"text",
+            "text":f"{im64}"
+        }
+    else:
+        im64 = CodificarImagen(rutaArchivo)
+        content={
+            "type":"image_url",
+            "image_url":{"url":f"data:{entrada.mime_type.value};base64,{im64}"}, "detail":"low"
+        }
+    # with open(rutaArchivo, "rb") as f:
+    #     image_bytes = f.read()
     
     inicio = time.time()
     try:
@@ -75,10 +90,11 @@ def ProcesarComprobante(rutaArchivo: str, mime_type: str = "image/jpeg") -> Dict
                     "role":"user",
                     "content":[
                         {"type":"text", "text":"Extrae los datos estructurados del comprobante:"},
-                        {
-                            "type":"image_url",
-                            "image_url":{"url":f"data:{entrada.mime_type.value};base64,{im64}"}, "detail":"low"
-                        }
+                        content
+                        # {
+                        #     "type":"image_url",
+                        #     "image_url":{"url":f"data:{entrada.mime_type.value};base64,{im64}"}, "detail":"low"
+                        # }
                     ]
                 }
             ],
